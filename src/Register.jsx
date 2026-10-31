@@ -88,7 +88,7 @@ function Register({
 
         try {
             const response = await fetch(
-                "http://localhost:5000/api/check-email",
+                "https://simple-login-server-nda4.onrender.com/api/check-email",
                 {
                     method: "POST",
                     headers: {
@@ -140,8 +140,8 @@ function Register({
             // Update an existing user
             // or create a new user
             const url = isEdit
-                ? `http://localhost:5000/api/users/${user._id}`
-                : "http://localhost:5000/api/register";
+                ? `https://simple-login-server-nda4.onrender.com/api/users/${user._id}`
+                : "https://simple-login-server-nda4.onrender.com/api/register";
 
             const response = await fetch(url, {
                 method: isEdit ? "PUT" : "POST",

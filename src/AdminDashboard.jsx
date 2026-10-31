@@ -36,7 +36,7 @@ function AdminDashboard() {
             setError("");
 
             const response = await fetch(
-                "http://localhost:5000/api/dashboard-stats"
+                "https://simple-login-server-nda4.onrender.com/api/dashboard-stats"
             );
 
             const data = await response.json();

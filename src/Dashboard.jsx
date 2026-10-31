@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import "./Dashboard.css";
 import Register from "./Register";
-import backgroundImage from "./assets/blooming-flowers.jpg";
+import backgg
 
 function Dashboard() {
     const [users, setUsers] = useState([]);
@@ -16,7 +16,7 @@ function Dashboard() {
     const fetchUsers = async () => {
         try {
             const response = await fetch(
-                "http://localhost:5000/api/users"
+                "https://simple-login-server-nda4.onrender.com/api/users"
             );
 
             const data = await response.json();
@@ -39,7 +39,7 @@ function Dashboard() {
 
         try {
             const response = await fetch(
-                `http://localhost:5000/api/users/${user._id}/edit`,
+                `https://simple-login-server-nda4.onrender.com/api/users/${user._id}/edit`,
                 {
                     method: "GET",
                     cache: "no-store"
@@ -84,7 +84,7 @@ function Dashboard() {
 
         try {
             const response = await fetch(
-                `http://localhost:5000/api/users/${id}`,
+                `https://simple-login-server-nda4.onrender.com/api/users/${id}`,
                 {
                     method: "DELETE"
                 }

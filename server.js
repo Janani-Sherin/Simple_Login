@@ -411,7 +411,7 @@ mongoose
     console.log("MongoDB connected successfully");
 
     app.listen(5000, () => {
-      console.log("Server running on http://localhost:5000");
+      console.log("Server running on https://simple-login-server-nda4.onrender.com");
     });
   })
   .catch((error) => {
