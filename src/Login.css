@@ -1,0 +1,148 @@
+html,
+body,
+#root {
+    margin: 0%;
+    padding: 0%;
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.loginform {
+    height: 100%;
+    width: 100%;
+
+    background-size: cover;
+    background-position: center;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loginform div {
+    width: 400px;
+    padding: 20px;
+
+    background-color: lightcyan;
+    border-radius: 20px;
+}
+
+.loginform h1 {
+    text-align: center;
+    color: darkgreen;
+    margin-bottom: 30px;
+}
+
+.loginform label {
+    margin-bottom: 8px;
+    color: darkgreen;
+    font-size: 20px;
+}
+
+
+.loginform input {
+    width: 100%;
+    padding: 14px;
+
+    box-sizing: border-box;
+    border: 1px solid beige;
+    border-radius: 10px;
+
+    font-size: 16px;
+
+}
+.password-box {
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.loginform .password-box .eye-icon {
+    position: absolute;
+    right: 25px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    background: transparent;
+    border: none;
+    padding: 4px;
+    margin: 0;
+
+    color: black;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+.loginform .password-box input {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    padding-right: 45px;
+    box-sizing: border-box;
+    border: 1px solid beige;
+    border-radius: 10px;
+    font-size: 16px;
+}
+
+.loginform button.login {
+
+    padding: 15px;
+    /* margin-top: 10px;
+    margin-right: 100px; */
+    margin: auto;
+    border: none;
+    border-radius: 8px;
+
+    background-color: green;
+    color: white;
+    align-items: center;
+    font-size: 25px;
+}
+
+.loginform button.register {
+    font-size: 15px;
+    padding: 10px;
+    align-items: top;
+    background-color: red;
+    color: white;
+    border-radius: 10px;
+    border: none;
+    margin-left: 15px;
+}
+
+
+.loginform p {
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: left;
+    color: green;
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 20px;
+    padding-left: 100px;
+
+}
+
+/* Fix Chrome autofill background color */
+.loginform input:-webkit-autofill,
+.loginform input:-webkit-autofill:hover,
+.loginform input:-webkit-autofill:focus,
+.loginform input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px white inset !important;
+    -webkit-text-fill-color: black !important;
+    caret-color: black;
+    transition: background-color 9999s ease-in-out 0s;
+}
+
+.login:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+    opacity: 0.7;
+}

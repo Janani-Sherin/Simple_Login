@@ -1,0 +1,86 @@
+/* Full-page background */
+.wallpaper {
+    min-height: 100vh;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 40px 20px;
+    box-sizing: border-box;
+    color:white;
+    background-color:darkgoldenrod;
+}
+
+/* Dashboard container */
+.dashboard {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 25px;
+}
+
+/* Heading */
+h1 {
+    text-align: center;
+    color:whitesmoke;
+    margin-bottom: 25px;
+}
+
+/* Table */
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    
+}
+
+/* Table headings and cells */
+.users-table th,
+.users-table td {
+    border: 1px solid burlywood;
+    padding: 12px;
+    text-align: left;
+    color:black;
+    
+}
+
+/* Table heading */
+.users-table th {
+    background-color:goldenrod;
+    color: white;
+}
+
+/* Alternate row background
+.users-table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+} */
+
+/* Hover effect */
+.users-table tbody tr:hover {
+    background-color:bisque;
+}
+
+/* Responsive table */
+@media (max-width: 600px) {
+    .dashboard {
+        padding: 12px;
+        overflow-x: auto;
+    }
+
+    .users-table {
+        min-width: 500px;
+    }
+}
+.edit-btn{
+    background-color: goldenrod;
+    margin-right: 10%;
+}
+.delete-btn{
+    background-color: red;
+}
+
+.save-btn{
+    background-color: lightgreen;
+    margin-right: 10%;
+}
+.cancel-btn{
+    background-color:goldenrod;
+}
