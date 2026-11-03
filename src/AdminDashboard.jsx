@@ -9,6 +9,14 @@ import {
     RefreshCw,
     LogOut
 } from "lucide-react";
+import {
+    PieChart,
+    Pie,
+    Cell,
+    Tooltip,
+    Legend,
+    ResponsiveContainer
+} from "recharts";
 
 import "./AdminDashboard.css";
 
@@ -21,6 +29,18 @@ function AdminDashboard() {
         inactiveUsers: 0,
         recentRegistrations: []
     });
+    const chartData = [
+        {
+            name: "Active Users",
+            value: stats.activeUsers
+        },
+        {
+            name: "Inactive Users",
+            value: stats.inactiveUsers
+        }
+    ];
+
+    const COLORS = ["#16a34a", "#dc2626"];
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -285,7 +305,7 @@ function AdminDashboard() {
                     </div>
 
 
-                    {/* Recent Registrations */}
+                    {/* Recent Registrations
 
                     <div className="recent-section">
 
@@ -347,7 +367,57 @@ function AdminDashboard() {
 
                         )}
 
+                    </div> */}
+
+
+
+                    {/* User Activity Pie Chart */}
+
+                    <div className="recent-section chart-section">
+
+                        <h2>User Activity Distribution</h2>
+
+                        {loading ? (
+                            <p>Loading chart...</p>
+                        ) : (
+
+                            <ResponsiveContainer width="100%" height={350}>
+
+                                <PieChart>
+
+                                    <Pie
+                                        data={chartData}
+                                        cx="50%"
+                                        cy="50%"
+                                        outerRadius={120}
+                                        dataKey="value"
+                                        nameKey="name"
+                                        label={({ name, percent }) =>
+                                            `${name} ${(percent * 100).toFixed(1)}%`
+                                        }
+                                    >
+
+                                        {chartData.map((entry, index) => (
+                                            <Cell
+                                                key={entry.name}
+                                                fill={COLORS[index]}
+                                            />
+                                        ))}
+
+                                    </Pie>
+
+                                    <Tooltip />
+
+                                    <Legend />
+
+                                </PieChart>
+
+                            </ResponsiveContainer>
+
+                        )}
+
                     </div>
+
 
                 </div>
 
