@@ -24,8 +24,17 @@ const registerSchema = new mongoose.Schema({
 },{timestamps:true});
 
 const loginSchema = new mongoose.Schema({
-  email: String,
-  password: String,
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Register"
+    },
+
+    email: String,
+
+    loginDate: {
+        type: Date,
+        default: Date.now
+    }
 });
 
 const Login =
@@ -331,6 +340,18 @@ app.post("/api/login", async (req, res) => {
     res.status(200).json({
       message: "Login successfully",
     });
+
+    // Update the user's last login date
+registeredUser.lastLogin = new Date();
+await registeredUser.save();
+
+// Store successful login history
+const login = new Login({
+    userId: registeredUser._id,
+    email: registeredUser.email
+});
+
+await login.save();
 
   } catch (error) {
     console.log("Login error:", error);

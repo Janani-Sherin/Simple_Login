@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import "./Dashboard.css";
 import Register from "./Register";
-import backgg
+import backgroundImage from "./assets/blooming-flowers.jpg";
 
 function Dashboard() {
     const [users, setUsers] = useState([]);
@@ -109,7 +109,9 @@ function Dashboard() {
 
     return (
         <>
-            <div className="wallpaper">
+            
+            <div className="wallpaper"
+            style={{ backgroundImage: `url(${backgroundImage})` }}>
                 <h1>Registered Users</h1>
 
                 <div className="dashboard">
