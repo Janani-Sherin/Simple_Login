@@ -44,7 +44,47 @@ const Login =
 const Register =
   mongoose.models.Register ||
   mongoose.model("Register", registerSchema);
-  // Fetch Dashboard Statistics
+
+// Fetch monthly registrations for the current calendar year.
+app.get("/api/monthly-registrations", async (req, res) => {
+  try {
+    const now = new Date();
+    const yearStart = new Date(now.getFullYear(), 0, 1);
+    const nextYearStart = new Date(now.getFullYear() + 1, 0, 1);
+    const monthlyCounts = await Register.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: yearStart, $lt: nextYearStart }
+        }
+      },
+      {
+        $group: {
+          _id: { $month: "$createdAt" },
+          registrations: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const countsByMonth = new Map(
+      monthlyCounts.map(({ _id, registrations }) => [_id, registrations])
+    );
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    return res.status(200).json(
+      months.map((month, index) => ({
+        month,
+        registrations: countsByMonth.get(index + 1) || 0
+      }))
+    );
+  } catch (error) {
+    console.error("Monthly registrations error:", error);
+    return res.status(500).json({
+      message: "Unable to fetch monthly registrations"
+    });
+  }
+});
+
+// Fetch Dashboard Statistics
 app.get("/api/dashboard-stats", async (req, res) => {
 
   try {

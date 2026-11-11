@@ -10,12 +10,17 @@ import {
     LogOut
 } from "lucide-react";
 import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip as ChartTooltip,
+    Legend as ChartLegend,
+    ResponsiveContainer,
     PieChart,
     Pie,
     Cell,
-    Tooltip,
-    Legend,
-    ResponsiveContainer
 } from "recharts";
 
 import "./AdminDashboard.css";
@@ -44,66 +49,59 @@ function AdminDashboard() {
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [monthlyRegistrations, setMonthlyRegistrations] = useState([]);
+    const [monthlyLoading, setMonthlyLoading] = useState(true);
+    const [monthlyError, setMonthlyError] = useState("");
 
     const navigate = useNavigate();
 
-    // Fetch Dashboard Statistics
+    // Refresh both dashboard statistics and registration analytics together.
     const fetchDashboardStats = async () => {
+        setLoading(true);
+        setMonthlyLoading(true);
+        setError("");
+        setMonthlyError("");
 
-        try {
+        const apiBase = "https://simple-login-server-nda4.onrender.com";
+        const [statsResult, monthlyResult] = await Promise.allSettled([
+            fetch(`${apiBase}/api/dashboard-stats`),
+            fetch(`${apiBase}/api/monthly-registrations`)
+        ]);
 
-            setLoading(true);
-            setError("");
-
-            const response = await fetch(
-                "https://simple-login-server-nda4.onrender.com/api/dashboard-stats"
-            );
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || "Unable to fetch dashboard data");
+        if (statsResult.status === "fulfilled") {
+            try {
+                const response = statsResult.value;
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || "Unable to fetch dashboard data");
+                setStats(data);
+            } catch (fetchError) {
+                setError(fetchError.message || "Unable to fetch dashboard data");
             }
-
-            setStats(data);
-
-        } catch (error) {
-
-            console.log("Dashboard error:", error);
-            setError(error.message);
-
-        } finally {
-
-            setLoading(false);
-
+        } else {
+            setError(statsResult.reason?.message || "Unable to fetch dashboard data");
         }
+
+        if (monthlyResult.status === "fulfilled") {
+            try {
+                const response = monthlyResult.value;
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || "Unable to fetch monthly registrations");
+                if (!Array.isArray(data)) throw new Error("Invalid monthly registration data");
+                setMonthlyRegistrations(data);
+            } catch (fetchError) {
+                setMonthlyError(fetchError.message || "Unable to fetch monthly registrations");
+            }
+        } else {
+            setMonthlyError(monthlyResult.reason?.message || "Unable to fetch monthly registrations");
+        }
+
+        setLoading(false);
+        setMonthlyLoading(false);
     };
 
     useEffect(() => {
         fetchDashboardStats();
     }, []);
-
-    // Calculate percentages for User Statistics
-    const activePercentage = stats.totalUsers > 0
-        ? (stats.activeUsers / stats.totalUsers) * 100
-        : 0;
-
-    const inactivePercentage = stats.totalUsers > 0
-        ? (stats.inactiveUsers / stats.totalUsers) * 100
-        : 0;
-
-    // Format Registration Date
-    const formatDate = (date) => {
-
-        if (!date) return "N/A";
-
-        return new Date(date).toLocaleDateString("en-IN", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric"
-        });
-
-    };
 
     return (
 
@@ -239,186 +237,58 @@ function AdminDashboard() {
                 </div>
 
 
-                {/* User Statistics and Recent Registrations */}
-
+                {/* Dashboard analytics */}
+                <h2 className="section-heading analytics-heading">Dashboard Analytics</h2>
                 <div className="dashboard-content">
-
-
-                    {/* User Statistics */}
-
-                    <div className="statistics-section">
-
-                        <h2>User Statistics</h2>
-
-                        {loading ? (
-                            <p>Loading statistics...</p>
-                        ) : (
-
-                            <>
-
-                                <div className="statistics-info">
-                                    <span>Active Users</span>
-                                    <strong>{stats.activeUsers}</strong>
-                                </div>
-
-                                <div className="progress-bar">
-                                    <div
-                                        className="active-progress"
-                                        style={{
-                                            width: `${activePercentage}%`
-                                        }}
-                                    ></div>
-                                </div>
-
-                                <p className="percentage">
-                                    {activePercentage.toFixed(1)}% Active
-                                </p>
-
-
-                                <div className="statistics-info">
-                                    <span>Inactive Users</span>
-                                    <strong>{stats.inactiveUsers}</strong>
-                                </div>
-
-                                <div className="progress-bar">
-                                    <div
-                                        className="inactive-progress"
-                                        style={{
-                                            width: `${inactivePercentage}%`
-                                        }}
-                                    ></div>
-                                </div>
-
-                                <p className="percentage">
-                                    {inactivePercentage.toFixed(1)}% Inactive
-                                </p>
-
-                                <div className="total-statistics">
-                                    <span>Total Users</span>
-                                    <strong>{stats.totalUsers}</strong>
-                                </div>
-
-                            </>
-
-                        )}
-
-                    </div>
-
-
-                    {/* Recent Registrations
-
-                    <div className="recent-section">
-
-                        <h2>Recent Registrations</h2>
-
-                        {loading ? (
-
-                            <p>Loading registrations...</p>
-
-                        ) : stats.recentRegistrations.length === 0 ? (
-
-                            <p>No registrations found.</p>
-
-                        ) : (
-
-                            <div className="recent-table-container">
-
-                                <table>
-
-                                    <thead>
-                                        <tr>
-                                            <th>S.No</th>
-                                            <th>Full Name</th>
-                                            <th>Email</th>
-                                            <th>Username</th>
-                                            <th>Registered Date</th>
-                                        </tr>
-                                    </thead>
-
-                                    <tbody>
-
-                                        {stats.recentRegistrations.map(
-                                            (user, index) => (
-
-                                                <tr key={user._id}>
-
-                                                    <td>{index + 1}</td>
-
-                                                    <td>{user.name}</td>
-
-                                                    <td>{user.email}</td>
-
-                                                    <td>{user.username}</td>
-
-                                                    <td>
-                                                        {formatDate(user.createdAt)}
-                                                    </td>
-
-                                                </tr>
-
-                                            )
-                                        )}
-
-                                    </tbody>
-
-                                </table>
-
-                            </div>
-
-                        )}
-
-                    </div> */}
-
-
-
-                    {/* User Activity Pie Chart */}
-
-                    <div className="recent-section chart-section">
-
+                    <section className="analytics-card chart-section">
                         <h2>User Activity Distribution</h2>
-
-                        {loading ? (
-                            <p>Loading chart...</p>
+                        {loading ? <p className="chart-message">Loading chart...</p> : error ? (
+                            <p className="chart-message dashboard-error">{error}</p>
                         ) : (
-
-                            <ResponsiveContainer width="100%" height={350}>
-
-                                <PieChart>
-
-                                    <Pie
-                                        data={chartData}
-                                        cx="50%"
-                                        cy="50%"
-                                        outerRadius={120}
-                                        dataKey="value"
-                                        nameKey="name"
-                                        label={({ name, percent }) =>
-                                            `${name} ${(percent * 100).toFixed(1)}%`
-                                        }
-                                    >
-
-                                        {chartData.map((entry, index) => (
-                                            <Cell
-                                                key={entry.name}
-                                                fill={COLORS[index]}
-                                            />
-                                        ))}
-
-                                    </Pie>
-
-                                    <Tooltip />
-
-                                    <Legend />
-
-                                </PieChart>
-
-                            </ResponsiveContainer>
-
+                            <div className="chart-container">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie
+                                            data={chartData}
+                                            cx="50%"
+                                            cy="46%"
+                                            outerRadius="68%"
+                                            dataKey="value"
+                                            nameKey="name"
+                                            label={({ percent }) => `${(percent * 100).toFixed(1)}%`}
+                                            labelLine={false}
+                                        >
+                                            {chartData.map((entry, index) => (
+                                                <Cell key={entry.name} fill={COLORS[index]} />
+                                            ))}
+                                        </Pie>
+                                        <ChartTooltip formatter={(value, name) => [`${value} users`, name]} />
+                                        <ChartLegend verticalAlign="bottom" />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
                         )}
+                    </section>
 
-                    </div>
-
-
+                    <section className="analytics-card chart-section">
+                        <h2>Monthly Registrations</h2>
+                        {monthlyLoading ? <p className="chart-message">Loading registrations...</p> : monthlyError ? (
+                            <p className="chart-message dashboard-error">{monthlyError}</p>
+                        ) : (
+                            <div className="chart-container">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={monthlyRegistrations} margin={{ top: 12, right: 12, left: -16, bottom: 0 }}>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                        <XAxis dataKey="month" tickLine={false} axisLine={false} />
+                                        <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
+                                        <ChartTooltip formatter={(value) => [`${value}`, "Registrations"]} />
+                                        <ChartLegend />
+                                        <Bar dataKey="registrations" name="Registrations" fill="#c79520" radius={[7, 7, 0, 0]} maxBarSize={38} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                        )}
+                    </section>
                 </div>
 
 
