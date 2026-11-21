@@ -100,7 +100,8 @@ function AdminDashboard() {
     };
 
     useEffect(() => {
-        fetchDashboardStats();
+        const timer = window.setTimeout(fetchDashboardStats, 0);
+        return () => window.clearTimeout(timer);
     }, []);
 
     return (
@@ -111,7 +112,10 @@ function AdminDashboard() {
 
             <aside className="admin-sidebar">
 
-                <h2>Admin Panel</h2>
+                <div className="sidebar-brand">
+                    <LayoutDashboard size={24} />
+                    <h2>Admin Panel</h2>
+                </div>
 
                 <div className="sidebar-menu">
 

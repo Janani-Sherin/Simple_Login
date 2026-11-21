@@ -10,6 +10,12 @@
     /* background-color:darkgoldenrod; */
 }
 
+.admin-users-main {
+    flex: 1;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
 /* Dashboard container */
 .dashboard {
     max-width: 1000px;

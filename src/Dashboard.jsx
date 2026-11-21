@@ -1,6 +1,9 @@
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { LayoutDashboard, Users, LogOut } from "lucide-react";
 import "./Dashboard.css";
+import "./AdminDashboard.css";
 import Register from "./Register";
 import backgroundImage from "./assets/blooming-flowers.jpg";
 
@@ -8,10 +11,7 @@ function Dashboard() {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
     const [loadingEdit, setLoadingEdit] = useState(false);
-
-    useEffect(() => {
-        fetchUsers();
-    }, []);
+    const navigate = useNavigate();
 
     const fetchUsers = async () => {
         try {
@@ -31,6 +31,11 @@ function Dashboard() {
             alert("Unable to connect to server");
         }
     };
+
+    useEffect(() => {
+        const timer = window.setTimeout(fetchUsers, 0);
+        return () => window.clearTimeout(timer);
+    }, []);
 
 
 
@@ -109,12 +114,44 @@ function Dashboard() {
 
     return (
         <>
-            
-            <div className="wallpaper"
-            style={{ backgroundImage: `url(${backgroundImage})` }}>
-                <h1>Registered Users</h1>
+            <div className="admin-dashboard">
+                <aside className="admin-sidebar">
+                    <div className="sidebar-brand">
+                        <LayoutDashboard size={24} />
+                        <h2>Admin Panel</h2>
+                    </div>
 
-                <div className="dashboard">
+                    <div className="sidebar-menu">
+                        <button
+                            className="sidebar-item"
+                            onClick={() => navigate("/AdminDashboard")}
+                        >
+                            <LayoutDashboard size={20} />
+                            Dashboard
+                        </button>
+
+                        <button className="sidebar-item active">
+                            <Users size={20} />
+                            Registered Users
+                        </button>
+                    </div>
+
+                    <button
+                        className="logout-btn"
+                        onClick={() => navigate("/Login")}
+                    >
+                        <LogOut size={20} />
+                        Logout
+                    </button>
+                </aside>
+
+                <main
+                    className="wallpaper admin-users-main"
+                    style={{ backgroundImage: `url(${backgroundImage})` }}
+                >
+                    <h1>Registered Users</h1>
+
+                    <div className="dashboard">
                     <table className="users-table">
                         <thead>
                             <tr>
@@ -159,14 +196,15 @@ function Dashboard() {
 
                             {users.length === 0 && (
                                 <tr>
-                                    <td colSpan="5">
+                                    <td colSpan="6">
                                         No registered users found.
                                     </td>
                                 </tr>
                             )}
                         </tbody>
                     </table>
-                </div>
+                    </div>
+                </main>
             </div>
 
             {selectedUser && (
