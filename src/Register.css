@@ -245,9 +245,10 @@ button:hover {
 /* Save button */
 .edit-reg form > button[type="submit"] {
     display: block;
-    width: 100%;
+    width: 50%;
+    margin-left: 100px;
     margin-top: 20px;
-    padding: 12px;
+    padding: 10px;
     border: none;
     border-radius: 7px;
     background: #90ee90;
