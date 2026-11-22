@@ -25,6 +25,21 @@ import {
 
 import "./AdminDashboard.css";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://simple-login-server-nda4.onrender.com";
+
+async function readApiResponse(response, fallbackMessage) {
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+        throw new Error(
+            `${fallbackMessage} (HTTP ${response.status}). The server returned HTML instead of JSON. ` +
+            "Run the updated backend locally or deploy server.js to Render."
+        );
+    }
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || `${fallbackMessage} (HTTP ${response.status})`);
+    return data;
+}
+
 function AdminDashboard() {
 
     const [stats, setStats] = useState({
@@ -49,60 +64,67 @@ function AdminDashboard() {
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const [monthlyRegistrations, setMonthlyRegistrations] = useState([]);
-    const [monthlyLoading, setMonthlyLoading] = useState(true);
-    const [monthlyError, setMonthlyError] = useState("");
+    const [selectedPeriod, setSelectedPeriod] = useState("month");
+    const [registrationAnalytics, setRegistrationAnalytics] = useState({ totalRegistrations: 0, chartData: [] });
+    const [analyticsLoading, setAnalyticsLoading] = useState(true);
+    const [analyticsError, setAnalyticsError] = useState("");
+    const [analyticsRefresh, setAnalyticsRefresh] = useState(0);
 
     const navigate = useNavigate();
 
-    // Refresh both dashboard statistics and registration analytics together.
+    // Refresh the existing dashboard summary statistics.
     const fetchDashboardStats = async () => {
         setLoading(true);
-        setMonthlyLoading(true);
         setError("");
-        setMonthlyError("");
 
-        const apiBase = "https://simple-login-server-nda4.onrender.com";
-        const [statsResult, monthlyResult] = await Promise.allSettled([
-            fetch(`${apiBase}/api/dashboard-stats`),
-            fetch(`${apiBase}/api/monthly-registrations`)
-        ]);
-
-        if (statsResult.status === "fulfilled") {
-            try {
-                const response = statsResult.value;
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.message || "Unable to fetch dashboard data");
-                setStats(data);
-            } catch (fetchError) {
-                setError(fetchError.message || "Unable to fetch dashboard data");
-            }
-        } else {
-            setError(statsResult.reason?.message || "Unable to fetch dashboard data");
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/dashboard-stats`);
+            setStats(await readApiResponse(response, "Unable to fetch dashboard data"));
+        } catch (fetchError) {
+            setError(fetchError.message || "Unable to fetch dashboard data");
+        } finally {
+            setLoading(false);
         }
+    };
 
-        if (monthlyResult.status === "fulfilled") {
-            try {
-                const response = monthlyResult.value;
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.message || "Unable to fetch monthly registrations");
-                if (!Array.isArray(data)) throw new Error("Invalid monthly registration data");
-                setMonthlyRegistrations(data);
-            } catch (fetchError) {
-                setMonthlyError(fetchError.message || "Unable to fetch monthly registrations");
-            }
-        } else {
-            setMonthlyError(monthlyResult.reason?.message || "Unable to fetch monthly registrations");
-        }
-
-        setLoading(false);
-        setMonthlyLoading(false);
+    const refreshDashboard = () => {
+        fetchDashboardStats();
+        setAnalyticsRefresh((value) => value + 1);
     };
 
     useEffect(() => {
         const timer = window.setTimeout(fetchDashboardStats, 0);
         return () => window.clearTimeout(timer);
     }, []);
+
+    useEffect(() => {
+        const controller = new AbortController();
+        let isCurrentRequest = true;
+        const fetchAnalytics = async () => {
+            setAnalyticsLoading(true);
+            setAnalyticsError("");
+            try {
+                const response = await fetch(
+                    `${API_BASE_URL}/api/registration-analytics?period=${selectedPeriod}`,
+                    { signal: controller.signal }
+                );
+                const data = await readApiResponse(response, "Unable to fetch registration analytics");
+                if (!Array.isArray(data.chartData)) throw new Error("Invalid registration analytics data");
+                if (isCurrentRequest) setRegistrationAnalytics(data);
+            } catch (fetchError) {
+                if (isCurrentRequest && fetchError.name !== "AbortError") {
+                    setAnalyticsError(fetchError.message || "Unable to fetch registration analytics");
+                }
+            } finally {
+                if (isCurrentRequest) setAnalyticsLoading(false);
+            }
+        };
+        fetchAnalytics();
+        return () => {
+            isCurrentRequest = false;
+            controller.abort();
+        };
+    }, [selectedPeriod, analyticsRefresh]);
 
     return (
 
@@ -134,13 +156,6 @@ function AdminDashboard() {
 
                 </div>
 
-                <button
-                    className="logout-btn"
-                    onClick={() => navigate("/Login")}
-                >
-                    <LogOut size={20} />
-                    Logout
-                </button>
 
             </aside>
 
@@ -153,19 +168,32 @@ function AdminDashboard() {
 
                 <div className="dashboard-header">
 
-                    <div>
-                        <h1>Admin Dashboard</h1>
-                        <p>Welcome to your user management dashboard</p>
-                    </div>
+    <div>
+        <h1>Admin Dashboard</h1>
+        <p>Welcome to your user management dashboard</p>
+    </div>
 
-                    <button
-                        className="refresh-btn"
-                        onClick={fetchDashboardStats}
-                        disabled={loading}
-                    >
-                        <RefreshCw size={18} />
-                        Refresh
-                    </button>
+    {/* Header Actions */}
+                    <div className="header-actions">
+
+                        <button
+                            className="refresh-btn"
+                            onClick={refreshDashboard}
+                            disabled={loading}
+                        >
+                            <RefreshCw size={18} />
+                            Refresh
+                        </button>
+
+                        <button
+                            className="logout-btn header-logout-btn"
+                            onClick={() => navigate("/Login")}
+                        >
+                            <LogOut size={18} />
+                            Logout
+                        </button>
+
+                    </div>
 
                 </div>
 
@@ -242,7 +270,22 @@ function AdminDashboard() {
 
 
                 {/* Dashboard analytics */}
-                <h2 className="section-heading analytics-heading">Dashboard Analytics</h2>
+                <div className="analytics-heading-row">
+                    <h2 className="section-heading analytics-heading">Dashboard Analytics</h2>
+                    <div className="date-filter" role="group" aria-label="Filter registration analytics by period">
+                        {[{ value: "today", label: "Today" }, { value: "week", label: "This Week" }, { value: "month", label: "This Month" }, { value: "year", label: "This Year" }].map((period) => (
+                            <button
+                                key={period.value}
+                                type="button"
+                                className={`date-filter-button${selectedPeriod === period.value ? " selected" : ""}`}
+                                aria-pressed={selectedPeriod === period.value}
+                                onClick={() => setSelectedPeriod(period.value)}
+                            >
+                                {period.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
                 <div className="dashboard-content">
                     <section className="analytics-card chart-section">
                         <h2>User Activity Distribution</h2>
@@ -275,19 +318,20 @@ function AdminDashboard() {
                     </section>
 
                     <section className="analytics-card chart-section">
-                        <h2>Monthly Registrations</h2>
-                        {monthlyLoading ? <p className="chart-message">Loading registrations...</p> : monthlyError ? (
-                            <p className="chart-message dashboard-error">{monthlyError}</p>
+                        <h2>{({ today: "Today's", week: "Weekly", month: "Monthly", year: "Yearly" })[selectedPeriod]} Registrations</h2>
+                        <p className="registration-total">{analyticsLoading ? "Loading total…" : `${registrationAnalytics.totalRegistrations} registrations in this period`}</p>
+                        {analyticsLoading ? <p className="chart-message">Loading registrations...</p> : analyticsError ? (
+                            <p className="chart-message dashboard-error">{analyticsError}</p>
                         ) : (
                             <div className="chart-container">
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={monthlyRegistrations} margin={{ top: 12, right: 12, left: -16, bottom: 0 }}>
+                                    <BarChart data={registrationAnalytics.chartData} margin={{ top: 12, right: 12, left: -16, bottom: 0 }}>
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                        <XAxis dataKey="month" tickLine={false} axisLine={false} />
+                                        <XAxis dataKey="name" tickLine={false} axisLine={false} interval="preserveStartEnd" />
                                         <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
                                         <ChartTooltip formatter={(value) => [`${value}`, "Registrations"]} />
                                         <ChartLegend />
-                                        <Bar dataKey="registrations" name="Registrations" fill="#c79520" radius={[7, 7, 0, 0]} maxBarSize={38} />
+                                        <Bar dataKey="registrations" name="Registrations" fill="green" radius={[7, 7, 0, 0]} maxBarSize={38} />
                                     </BarChart>
                                 </ResponsiveContainer>
                             </div>
@@ -296,17 +340,7 @@ function AdminDashboard() {
                 </div>
 
 
-                {/* View All Users Button */}
-
-                {/* <div className="view-users-section">
-
-                    <button
-                        onClick={() => navigate("/Dashboard")}
-                    >
-                        View All Registered Users
-                    </button>
-
-                </div> */}
+               
 
             </main>
 

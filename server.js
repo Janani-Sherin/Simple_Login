@@ -45,6 +45,88 @@ const Register =
   mongoose.models.Register ||
   mongoose.model("Register", registerSchema);
 
+// Fetch registrations grouped into Asia/Kolkata calendar intervals.
+app.get("/api/registration-analytics", async (req, res) => {
+  const { period } = req.query;
+  const periodFormats = { today: "%Y-%m-%d-%H", week: "%Y-%m-%d", month: "%Y-%m-%d", year: "%Y-%m" };
+  if (!Object.prototype.hasOwnProperty.call(periodFormats, period)) {
+    return res.status(400).json({ message: "Period must be today, week, month, or year" });
+  }
+
+  try {
+    const istParts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Kolkata", year: "numeric", month: "2-digit", day: "2-digit"
+    }).formatToParts(new Date()).reduce((parts, part) => {
+      if (part.type !== "literal") parts[part.type] = Number(part.value);
+      return parts;
+    }, {});
+    const { year, month, day } = istParts;
+    const istBoundary = (y, m, d, hour = 0) => new Date(Date.UTC(y, m - 1, d, hour) - (5 * 60 + 30) * 60 * 1000);
+    const calendarDate = new Date(Date.UTC(year, month - 1, day));
+    let startCalendar;
+    let endCalendar;
+    let intervalCount;
+    let labelFor;
+
+    if (period === "today") {
+      startCalendar = calendarDate;
+      endCalendar = new Date(Date.UTC(year, month - 1, day + 1));
+      intervalCount = 24;
+      labelFor = (index) => `${String(index).padStart(2, "0")}:00`;
+    } else if (period === "week") {
+      const mondayOffset = (calendarDate.getUTCDay() + 6) % 7;
+      startCalendar = new Date(Date.UTC(year, month - 1, day - mondayOffset));
+      endCalendar = new Date(Date.UTC(year, month - 1, day - mondayOffset + 7));
+      intervalCount = 7;
+      labelFor = (index) => ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"][index];
+    } else if (period === "month") {
+      startCalendar = new Date(Date.UTC(year, month - 1, 1));
+      endCalendar = new Date(Date.UTC(year, month, 1));
+      intervalCount = new Date(Date.UTC(year, month, 0)).getUTCDate();
+      labelFor = (index) => String(index + 1).padStart(2, "0");
+    } else {
+      startCalendar = new Date(Date.UTC(year, 0, 1));
+      endCalendar = new Date(Date.UTC(year + 1, 0, 1));
+      intervalCount = 12;
+      labelFor = (index) => ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][index];
+    }
+
+    const start = istBoundary(startCalendar.getUTCFullYear(), startCalendar.getUTCMonth() + 1, startCalendar.getUTCDate());
+    const end = istBoundary(endCalendar.getUTCFullYear(), endCalendar.getUTCMonth() + 1, endCalendar.getUTCDate());
+    const counts = await Register.aggregate([
+      { $match: { createdAt: { $gte: start, $lt: end } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: periodFormats[period], date: "$createdAt", timezone: "Asia/Kolkata" } },
+          registrations: { $sum: 1 }
+        }
+      }
+    ]);
+    const countByInterval = new Map(counts.map(({ _id, registrations }) => [_id, registrations]));
+    const chartData = Array.from({ length: intervalCount }, (_, index) => {
+      const interval = new Date(startCalendar.getTime());
+      if (period === "today") interval.setUTCHours(index);
+      else if (period === "year") interval.setUTCMonth(index);
+      else interval.setUTCDate(interval.getUTCDate() + index);
+      const y = interval.getUTCFullYear();
+      const m = String(interval.getUTCMonth() + 1).padStart(2, "0");
+      const d = String(interval.getUTCDate()).padStart(2, "0");
+      const h = String(interval.getUTCHours()).padStart(2, "0");
+      const key = period === "today" ? `${y}-${m}-${d}-${h}` : period === "year" ? `${y}-${m}` : `${y}-${m}-${d}`;
+      return { name: labelFor(index), registrations: countByInterval.get(key) || 0 };
+    });
+
+    return res.status(200).json({
+      period,
+      totalRegistrations: chartData.reduce((total, interval) => total + interval.registrations, 0),
+      chartData
+    });
+  } catch (error) {
+    console.error("Registration analytics error:", error);
+    return res.status(500).json({ message: "Unable to fetch registration analytics" });
+  }
+});
+
 // Fetch monthly registrations for the current calendar year.
 app.get("/api/monthly-registrations", async (req, res) => {
   try {

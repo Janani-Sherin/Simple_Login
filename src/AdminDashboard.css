@@ -1,23 +1,37 @@
+
+/* ========================================
+   ADMIN DASHBOARD - PROFESSIONAL THEME
+======================================== */
+
 .admin-dashboard {
     display: flex;
+    align-items: stretch;
     min-height: 100vh;
     width: 100%;
-    background:lightgreen;
+    background: lightgreen;
     font-family: Arial, sans-serif;
+    box-sizing: border-box;
 }
+
+/* ========================================
+   SIDEBAR
+======================================== */
 
 .admin-sidebar {
     width: 250px;
     min-width: 250px;
-    height: 100vh;
-    position: sticky;
-    top: 0;
+    min-height: 100vh;
+    height: auto;
+    position: relative;
+    align-self: stretch;
     background: darkgreen;
     color: white;
     padding: 30px 18px;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
+    box-shadow: 3px 0 12px rgba(15, 23, 42, 0.12);
+    z-index: 10;
 }
 
 .sidebar-brand {
@@ -31,6 +45,7 @@
 .sidebar-brand h2 {
     text-align: left;
     font-size: 25px;
+    font-weight: 700;
     margin: 0;
     color: #ffffff;
 }
@@ -48,20 +63,31 @@
     padding: 15px;
     width: 100%;
     border: none;
-    border-radius: 7px;
+    border-radius: 9px;
     background: transparent;
-    color: #d4d8e0;
+    color: #cbd5e1;
     font-size: 15px;
+    font-weight: 500;
     text-align: left;
     cursor: pointer;
-    transition: background 0.2s ease, color 0.2s ease;
+    transition: background 0.2s ease, color 0.2s ease,
+                transform 0.2s ease;
 }
 
-.sidebar-item:hover,
+.sidebar-item:hover {
+    background: #16a34a;
+    color: white;
+    transform: translateX(3px);
+}
+
 .sidebar-item.active {
-    background: #b88712;
+    background: #16a34a;
     color: white;
 }
+
+/* ========================================
+   LOGOUT BUTTON
+======================================== */
 
 .logout-btn {
     display: flex;
@@ -70,16 +96,24 @@
     gap: 12px;
     margin-top: auto;
     padding: 14px;
-    background: #dc3545;
+    background: #dc2626;
     color: white;
     border: none;
-    border-radius: 7px;
+    border-radius: 9px;
     cursor: pointer;
     font-size: 15px;
-    transition: background 0.2s ease;
+    font-weight: 600;
+    transition: background 0.2s ease, transform 0.2s ease;
 }
 
-.logout-btn:hover { background: #bd2130; }
+.logout-btn:hover {
+    background: #b91c1c;
+    transform: translateY(-2px);
+}
+
+/* ========================================
+   MAIN CONTENT
+======================================== */
 
 .admin-main {
     flex: 1;
@@ -87,6 +121,10 @@
     padding: 35px 40px 56px;
     box-sizing: border-box;
 }
+
+/* ========================================
+   DASHBOARD HEADER
+======================================== */
 
 .dashboard-header {
     display: flex;
@@ -98,35 +136,104 @@
 
 .dashboard-header h1 {
     font-size: 30px;
-    color: #202a3b;
+    font-weight: 700;
+    color: #172554;
     margin: 0 0 10px;
 }
 
-.dashboard-header p { color: #777; font-size: 15px; margin: 0; }
+.dashboard-header p {
+    color: #64748b;
+    font-size: 15px;
+    margin: 0;
+}
+
+/* ========================================
+   HEADER ACTIONS
+======================================== */
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Logout button in dashboard header */
+
+.dashboard-header .header-logout-btn {
+    margin-top: 0;
+    padding: 11px 18px;
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.dashboard-header .header-logout-btn:hover {
+    background: #b91c1c;
+    transform: translateY(-2px);
+}
+
+/* ========================================
+   REFRESH BUTTON
+======================================== */
 
 .refresh-btn {
     display: flex;
     align-items: center;
     gap: 8px;
     padding: 11px 18px;
-    background: #b88712;
+    background: darkgreen;
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
     transition: background 0.2s ease, transform 0.2s ease;
 }
 
-.refresh-btn:hover { background: #98700d; transform: translateY(-1px); }
-.refresh-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-.dashboard-error { color: #dc3545; margin-bottom: 20px; }
+.refresh-btn:hover {
+    background: #16a34a;
+    transform: translateY(-2px);
+}
+
+.refresh-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.dashboard-error {
+    color: #dc2626;
+    margin-bottom: 20px;
+}
+
+/* ========================================
+   SECTION HEADINGS
+======================================== */
 
 .section-heading {
     font-size: 21px;
-    color: #303846;
+    font-weight: 700;
+    color: #172554;
     margin: 0 0 20px;
 }
+
+.analytics-heading {
+    margin-bottom: 18px;
+}
+
+/* ========================================
+   SUMMARY CARDS
+======================================== */
 
 .summary-cards {
     display: grid;
@@ -139,20 +246,37 @@
     display: flex;
     align-items: center;
     gap: 17px;
-    background: white;
+    background: #ffffff;
     padding: 25px 20px;
-    border-radius: 10px;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.07);
     border-left: 4px solid transparent;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
     min-width: 0;
 }
 
-.summary-card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12); }
-.total-card { border-left-color: #3b82f6; }
-.active-card { border-left-color: #16a34a; }
-.new-card { border-left-color: #d97706; }
-.inactive-card { border-left-color: #dc3545; }
+.summary-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+}
+
+.total-card {
+    border-left-color: #2563eb;
+}
+
+.active-card {
+    border-left-color: #16a34a;
+}
+
+.new-card {
+    border-left-color: #8b5cf6;
+}
+
+.inactive-card {
+    border-left-color: #dc2626;
+}
+
+/* CARD ICONS */
 
 .card-icon {
     display: flex;
@@ -160,52 +284,355 @@
     justify-content: center;
     min-width: 55px;
     height: 55px;
-    border-radius: 10px;
-    background: #f0f2f7;
-    color: #b88712;
+    border-radius: 12px;
+    background: #dbeafe;
+    color: #2563eb;
 }
 
-.summary-card h3 { font-size: 14px; color: #6b7280; margin: 0 0 12px; }
-.summary-card h2 { font-size: 29px; color: #202a3b; margin: 0; }
-.analytics-heading { margin-bottom: 18px; }
+.summary-card h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #64748b;
+    margin: 0 0 12px;
+}
+
+.summary-card h2 {
+    font-size: 29px;
+    font-weight: 700;
+    color: #172554;
+    margin: 0;
+}
+
+/* ========================================
+   ANALYTICS SECTION
+======================================== */
 
 .dashboard-content {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    /* Pie chart: 40% | Monthly registrations: 60% */
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+
     gap: 24px;
     align-items: stretch;
+    width: 100%;
 }
 
 .analytics-card {
     min-width: 0;
     padding: 24px;
     border-radius: 12px;
-    background: #fff;
+    background: #ffffff;
     box-shadow: 0 3px 14px rgba(25, 36, 55, 0.08);
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+    box-sizing: border-box;
 }
 
-.analytics-card:hover { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(25, 36, 55, 0.11); }
-.chart-section h2 { font-size: 19px; color: #303846; margin: 0 0 16px; }
-.chart-container { width: 100%; height: 350px; min-width: 0; }
-.chart-message { min-height: 350px; display: grid; place-items: center; color: #6b7280; text-align: center; }
+.analytics-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(25, 36, 55, 0.12);
+}
+
+.chart-section h2 {
+    font-size: 19px;
+    font-weight: 600;
+    color: #172554;
+    margin: 0 0 16px;
+}
+
+/* ========================================
+   CHART DIMENSIONS
+======================================== */
+
+.chart-container {
+    width: 100%;
+    height: 280px;
+    min-width: 0;
+}
+
+.chart-message {
+    height: 280px;
+    min-height: 280px;
+    display: grid;
+    place-items: center;
+    color: #64748b;
+    text-align: center;
+}
+
+/* ========================================
+   DASHBOARD REGISTRATION DATE FILTER
+======================================== */
+
+.analytics-heading-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.analytics-heading-row .analytics-heading {
+    margin: 0;
+}
+
+.date-filter {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid rgba(0, 100, 0, 0.2);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.72);
+}
+
+.date-filter-button {
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: darkgreen;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.date-filter-button:hover {
+    background: #dcfce7;
+}
+
+.date-filter-button.selected {
+    background: darkgreen;
+    color: white;
+}
+
+.date-filter-button:focus-visible {
+    outline: 2px solid #16a34a;
+    outline-offset: 2px;
+}
+
+.registration-total {
+    margin: -8px 0 12px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+/* ========================================
+   TABLET RESPONSIVE DESIGN
+======================================== */
 
 @media (max-width: 1100px) {
-    .summary-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .dashboard-content { grid-template-columns: 1fr; }
+
+    .summary-cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dashboard-content {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-main {
+        padding: 30px 25px 45px;
+    }
 }
 
+/* ========================================
+   MOBILE RESPONSIVE DESIGN
+======================================== */
+
 @media (max-width: 700px) {
-    .admin-dashboard { flex-direction: column; }
-    .admin-sidebar { width: 100%; min-width: 0; height: auto; position: static; padding: 15px; }
-    .sidebar-brand { margin: 10px 0 18px; }
-    .sidebar-menu { gap: 6px; }
-    .logout-btn { margin-top: 12px; }
-    .admin-main { padding: 24px 16px 40px; }
-    .dashboard-header { align-items: flex-start; flex-direction: column; margin-bottom: 28px; }
-    .dashboard-header h1 { font-size: 26px; }
-    .summary-cards { grid-template-columns: 1fr; gap: 14px; margin-bottom: 28px; }
-    .summary-card { padding: 20px; }
-    .analytics-card { padding: 18px 14px; }
-    .chart-container, .chart-message { height: 310px; min-height: 310px; }
+
+    .admin-dashboard {
+        flex-direction: column;
+    }
+
+    .admin-sidebar {
+        width: 100%;
+        min-width: 0;
+        height: auto;
+        min-height: auto;
+        position: relative;
+        padding: 15px;
+    }
+
+    .sidebar-brand {
+        margin: 10px 0 18px;
+    }
+
+    .sidebar-menu {
+        gap: 6px;
+    }
+
+    .sidebar-item:hover {
+        transform: none;
+    }
+
+    .logout-btn {
+        margin-top: 12px;
+    }
+
+    .admin-main {
+        padding: 24px 16px 40px;
+    }
+
+    .dashboard-header {
+        align-items: flex-start;
+        flex-direction: column;
+        margin-bottom: 28px;
+    }
+
+    .dashboard-header h1 {
+        font-size: 26px;
+    }
+
+    .summary-cards {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-bottom: 28px;
+    }
+
+    .summary-card {
+        padding: 20px;
+    }
+
+    .dashboard-content {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .analytics-card {
+        padding: 18px 14px;
+    }
+
+    .chart-container,
+    .chart-message {
+        height: 250px;
+        min-height: 250px;
+    }
+
+    .analytics-heading-row {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .date-filter {
+        width: 100%;
+        box-sizing: border-box;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .date-filter-button {
+        padding: 9px 8px;
+    }
+}
+
+/* ========================================
+   SMALL MOBILE SCREENS
+======================================== */
+
+@media (max-width: 400px) {
+
+    .dashboard-header h1 {
+        font-size: 23px;
+    }
+
+    .summary-card {
+        gap: 12px;
+        padding: 16px 14px;
+    }
+
+    .card-icon {
+        min-width: 48px;
+        height: 48px;
+    }
+
+    .summary-card h3 {
+        font-size: 13px;
+    }
+
+    .summary-card h2 {
+        font-size: 25px;
+    }
+
+    .analytics-card {
+        padding: 16px 12px;
+    }
+}
+
+
+/* ========================================
+   FIX DASHBOARD BACKGROUND AND HEIGHT
+======================================== */
+
+/* Allow the application page to grow vertically */
+/* html,
+body,
+#root {
+    width: 100%;
+    min-height: 100%;
+    height: auto;
+    margin: 0;
+} */
+
+/* Dashboard must grow according to its content */
+.admin-dashboard {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    min-height: 100vh;
+    height: auto;
+    background: lightgreen;
+    overflow: visible;
+    box-sizing: border-box;
+}
+/* Sidebar must stretch to the dashboard's full height */
+.admin-sidebar {
+    align-self: stretch;
+    min-height: 100vh;
+    height: auto;
+    flex-shrink: 0;
+}
+
+/* Main content must not restrict dashboard height */
+.admin-main {
+    flex: 1;
+    min-width: 0;
+    min-height: 100vh;
+    height: auto;
+    overflow: visible;
+}
+
+/* Ensure analytics cards remain inside the dashboard */
+.dashboard-content {
+    width: 100%;
+    align-items: stretch;
+    overflow: visible;
+}
+
+.analytics-card {
+    min-width: 0;
+    height: auto;
+    box-sizing: border-box;
+}
+
+/* Mobile adjustment */
+@media (max-width: 700px) {
+
+    .admin-dashboard {
+        flex-direction: column;
+        height: auto !important;
+    }
+
+    .admin-sidebar {
+        width: 100%;
+        min-height: auto;
+        height: auto !important;
+    }
+
+    .admin-main {
+        min-height: auto;
+        width: 100%;
+    }
 }
